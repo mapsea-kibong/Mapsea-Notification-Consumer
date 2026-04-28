@@ -36,6 +36,7 @@ class Company(
     var userList: MutableList<User> = mutableListOf()
 
     constructor(companyName: String?, maxVessels: Int) : this(
+        companyId = null,
         companyName = companyName,
         maxVessels = maxVessels,
     ) {

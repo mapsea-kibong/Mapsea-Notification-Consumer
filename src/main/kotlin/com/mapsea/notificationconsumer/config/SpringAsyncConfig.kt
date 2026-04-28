@@ -12,12 +12,14 @@ import java.util.concurrent.ThreadPoolExecutor
 class SpringAsyncConfig {
 
     @Bean(name = ["threadPoolTaskExecutor"])
-    fun threadPoolTaskExecutor(): Executor = ThreadPoolTaskExecutor().apply {
-        corePoolSize = 20
-        maxPoolSize = 100
-        queueCapacity = 10000
-        threadNamePrefix = "notification-task"
-        setRejectedExecutionHandler(ThreadPoolExecutor.DiscardOldestPolicy())
-        initialize()
+    fun threadPoolTaskExecutor(): Executor {
+        val executor = ThreadPoolTaskExecutor()
+        executor.corePoolSize = 20
+        executor.maxPoolSize = 100
+        executor.queueCapacity = 10000
+        executor.setThreadNamePrefix("notification-task")
+        executor.setRejectedExecutionHandler(ThreadPoolExecutor.DiscardOldestPolicy())
+        executor.initialize()
+        return executor
     }
 }

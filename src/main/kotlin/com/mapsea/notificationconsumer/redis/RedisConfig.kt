@@ -26,12 +26,13 @@ class RedisConfig {
     private var redisPort: Int = 6379
 
     @Bean
+    @Suppress("UNCHECKED_CAST")
     fun redisConnectionFactory(): RedisConnectionFactory {
-        val poolConfig = GenericObjectPoolConfig<Any>().apply {
+        val poolConfig = (GenericObjectPoolConfig<Any>().apply {
             maxTotal = 1000
-            maxWait = Duration.ofMinutes(1L)
             maxIdle = 1000
-        }
+            setMaxWait(Duration.ofMinutes(1L))
+        }) as GenericObjectPoolConfig<io.lettuce.core.api.StatefulConnection<*, *>>
         val config = RedisStandaloneConfiguration(redisHost, redisPort).apply {
             setPassword(redisPassword)
         }
