@@ -9,7 +9,7 @@ spring:
       - optional:aws-secretsmanager:production/shared/connect
       - optional:aws-secretsmanager:production/shared/redis
       - optional:aws-secretsmanager:production/shared/kafka
-      - optional:aws-secretsmanager:prod/mapsea-notification-consumer
+      - optional:aws-secretsmanager:dev/mapsea-notification-consumer
 
   application:
     name: Mapsea-Notification-Consumer
