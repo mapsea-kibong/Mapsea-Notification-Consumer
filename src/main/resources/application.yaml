@@ -1,0 +1,19 @@
+server:
+    port: 8080
+
+spring:
+  profiles:
+    active: local
+  config:
+    import: sm://
+  cloud:
+    gcp:
+      secretmanager:
+        enabled: true
+
+api:
+  base-url:
+    aligo: ${sm://projects/13887482477/secrets/ALIGO_API_URL}
+  key:
+    aligo: ${sm://projects/13887482477/secrets/ALIGO_API_KEY}
+    aligo-sender: ${sm://projects/13887482477/secrets/ALIGO_SENDER_KEY}

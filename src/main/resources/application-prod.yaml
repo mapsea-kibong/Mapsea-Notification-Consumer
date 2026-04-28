@@ -1,0 +1,82 @@
+spring:
+  data:
+    redis:
+      host: ${sm://AIS_DATA_REDIS_HOST}
+      port: 6379
+      password: ${sm://AIS_DATA_REDIS_PASSWORD}
+      lettuce:
+        pool:
+          max-wait: 5000000
+          max-active: 1000
+          max-idle: 1000
+          enabled: true
+          time-between-eviction-runs: 30000
+        shutdown-timeout: 5000000
+  session:
+    store-type: redis
+  application:
+    name: Connect-Track-Consumer
+  datasource:
+    hikari:
+      maximum-pool-size: 20
+      max-lifetime: 10000
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: ${sm://connect-api-db-url-prod}
+    username: ${sm://connect-api-db-username-prod}
+    password: ${sm://connect-api-db-password-prod}
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+        format_sql: true
+        jdbc:
+          batch_size: 100
+        order_updates: true
+        order_inserts: true
+        show_sql: false
+    openInView: false
+    defer-datasource-initialization: true
+  kafka:
+    bootstrap-servers: pkc-n3603.us-central1.gcp.confluent.cloud:9092
+    properties:
+      sasl:
+        mechanism: PLAIN
+        jaas:
+          config: org.apache.kafka.common.security.plain.PlainLoginModule required username="TKHVDZPYLQSZROM7" password="H3WNYO8r1S55bn3kgAeLVzQsflYDorKDdWdR//scEH0owUbte8eOcP+HX0XYtQ+R";
+      security:
+        protocol: SASL_SSL
+      session:
+        timeout:
+          ms: 200000
+      basic:
+        auth:
+          credentials:
+            source: USER_INFO
+          user:
+            info: JJGD5ZXTZAPR23RY:NSGr5GYSQALhVzwTXmwHOtLFyV/qcRA7+rGqarZu0ZRtoGCa6sQ/e4WSCUGl0zuB
+      schema:
+        registry:
+          url: https://psrc-9jzo5.us-central1.gcp.confluent.cloud
+    listener:
+      type: batch
+    consumer:
+      group-id: connect-notification-consumer-prod
+      topic:
+        notification: connect-notification
+      max-poll-records: 100
+      auto-offset-reset: earliest
+      enable-auto-commit: true
+      fetch-max-wait: 1s
+server:
+  port: 8080
+
+service:
+  mail:
+    client-id: ${sm://SERVICE_MAIL_CLIENT_ID}
+    client-secret: ${sm://SERVICE_MAIL_CLIENT_SECRET}
+    refresh-token: ${sm://SERVICE_MAIL_REFRESH_TOKEN}
+    service-auth-url: ${sm://SERVICE_MAIL_AUTH_URL}
+    from-email: no-reply@mapseacorp.com

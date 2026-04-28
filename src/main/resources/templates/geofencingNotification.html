@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en" style="min-width: 595px;">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>커넥트 알림</title>
+</head>
+<body style="margin: 0; padding: 0; width: 100%; min-width: 452px; height: 900px;">
+<table style="width: 100%; min-width: 452px; margin-left: auto; margin-right: auto; border-collapse: collapse; padding: 0">
+    <tbody>
+    <tr>
+        <td style="text-align: center; padding: 54px 0 0 0">
+            <img
+                    style="margin: 0 0 42px 0; width: 140px;"
+                    src="https://storage.googleapis.com/mapsea_service_web/assets/connect_log.png"
+                    alt="brand logo"
+            />
+            <hr style="padding: 0 10% 0 10%; width: 70%;"/>
+        </td>
+    </tr>
+    </tbody>
+</table>
+<table style="width: 100%; min-width: 452px; max-width: 452px; margin-left: auto; margin-right: auto; border-collapse: collapse; padding: 0">
+    <tbody>
+    <tr>
+        <td style="text-align: center;padding:76px 0 0 0;">
+            <p
+                    style="
+          font-weight: bold;
+          display: inline-block;
+          font-size: 40px;
+          margin: 0;
+          min-width: 452px;
+          width: 452px;
+          text-align: center;
+        "
+            >
+                선박 알림
+            </p>
+            <p style="
+            text-align: center;
+            line-height: 27px;
+            display: inline-block;
+            min-width: 452px;
+            width: 452px;
+            margin-top: 30px;
+            ">안녕하세요 맵시 커넥트입니다.<br/>
+                <span th:text="${companyName}"></span> 의 관리 선박 알림을 보내드립니다.
+            </p>
+            <p style="display: inline-block; min-width: 413px; width: 413px; background: #F6F6F6;
+            height: 88px; border-radius: 10px; margin-top: 50px; padding: 24px 20px 24px 20px; text-align: left">
+
+                <span style="margin: 0; display: inline-block; text-align: left;">
+                    <span style="display: inline-block; width: 78px; margin: 0; font-size: 14px; font-weight: 500; text-align: left; color: #767A80">선박명</span>
+                    <span style="display: inline-block; width: 200px; margin: 0; font-size: 14px; font-weight: bold; text-align: left"
+                          th:text="${shipName}"></span>
+                </span>
+                <span style="display: inline-block; text-align: left; margin-top: 12px; margin-bottom: 0">
+                    <span style="display: inline-block; width: 78px; margin: 0; font-size: 14px; font-weight: 500; text-align: left; color: #767A80">이벤트</span>
+                    <span style="display: inline-block; width: 200px; margin: 0; font-size: 14px; font-weight: bold; text-align: left"
+                          th:text="${message}"></span>
+                </span>
+                <span style="display: inline-block; text-align: left; margin-top: 12px; margin-bottom: 0">
+                    <span style="display: inline-block; width: 78px; margin: 0; font-size: 14px; font-weight: 500; text-align: left; color: #767A80">발생일시</span>
+                    <span style="display: inline-block; width: 200px; margin: 0; font-size: 14px; font-weight: bold; text-align: left"
+                          th:text="${time}"></span>
+                </span>
+            </p>
+            <p style="margin: 0; display: inline-block;">
+                <a th:href="${connectUrl}" style="
+        border: none;
+        display: block;
+        font-size: 17px;
+        margin:32px 0 0 0;
+        text-align: center;
+
+        background-color: #006AF5;
+        color : white;
+        padding: 19px 0 19px 0;
+        border-radius: 4px;
+        cursor: pointer;
+">
+                   <span style="
+                    display: block;
+                    width: 452px;
+                    height: 20px;
+                    ">
+                커넥트 바로가기
+                    </span>
+
+                </a>
+            </p>
+        </td>
+    </tr>
+    <tr style="
+        min-width: 452px;
+          width: 452px;
+          min-height: 200px;
+          height: 200px;
+">
+    </tr>
+    </tbody>
+</table>
+</body>
+</html>
