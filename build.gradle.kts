@@ -21,7 +21,6 @@ repositories {
     mavenCentral()
 }
 
-extra["springCloudGcpVersion"] = "5.5.0"
 extra["kotlinJdslVersion"] = "3.8.2"
 
 dependencies {
@@ -42,9 +41,8 @@ dependencies {
     // Kafka
     implementation("org.springframework.kafka:spring-kafka")
 
-    // GCP Secret Manager (initial — to be replaced by AWS Secrets Manager during migration)
-    implementation("com.google.cloud:spring-cloud-gcp-starter")
-    implementation("com.google.cloud:spring-cloud-gcp-starter-secretmanager:5.5.0")
+    // AWS Secrets Manager
+    implementation("io.awspring.cloud:spring-cloud-aws-starter-secrets-manager:3.1.1")
 
     // MySQL
     runtimeOnly("com.mysql:mysql-connector-j")
@@ -77,12 +75,6 @@ dependencies {
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     testRuntimeOnly("com.h2database:h2")
-}
-
-dependencyManagement {
-    imports {
-        mavenBom("com.google.cloud:spring-cloud-gcp-dependencies:${property("springCloudGcpVersion")}")
-    }
 }
 
 // kotlin-jpa plugin: opens entity classes for JPA proxy + adds no-arg constructor

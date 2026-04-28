@@ -1,0 +1,139 @@
+# AWS Development 환경 설정
+# Profile: aws-dev
+# AWS Secrets Manager를 사용하여 민감한 정보를 관리
+
+spring:
+  # AWS Secrets Manager에서 설정 로드
+  config:
+    import:
+      - optional:aws-secretsmanager:development/shared/connect
+      - optional:aws-secretsmanager:production/shared/redis
+      - optional:aws-secretsmanager:production/shared/kafka
+      - optional:aws-secretsmanager:dev/mapsea-notification-consumer
+
+  application:
+    name: Mapsea-Notification-Consumer
+
+  cloud:
+    aws:
+      secretsmanager:
+        region: ap-northeast-2
+        enabled: true
+
+  # MySQL (development/shared/connect 에서 로드)
+  datasource:
+    url: ${mysql-url}
+    username: ${mysql-username}
+    password: ${mysql-password}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      maximum-pool-size: 20
+      max-lifetime: 600000
+      idle-timeout: 300000
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+        format_sql: false
+        jdbc:
+          batch_size: 100
+        order_updates: true
+        order_inserts: true
+    openInView: false
+    defer-datasource-initialization: true
+
+  # Redis (production/shared/redis 에서 로드)
+  data:
+    redis:
+      host: ${redis-host}
+      port: 6378
+      password: ${redis-password}
+      timeout: 3s
+      connect-timeout: 10s
+      lettuce:
+        pool:
+          max-active: 1000
+          max-idle: 1000
+          min-idle: 10
+          max-wait: 5000ms
+          enabled: true
+          time-between-eviction-runs: 30s
+        shutdown-timeout: 5000ms
+
+  # Kafka (production/shared/kafka 에서 로드)
+  kafka:
+    bootstrap-servers: ${bootstrap-servers}
+    properties:
+      "[security.protocol]": ${security-protocol}
+      "[sasl.mechanism]": ${sasl-mechanism}
+      "[sasl.jaas.config]": "org.apache.kafka.common.security.plain.PlainLoginModule required username='${sasl-username}' password='${sasl-password}';"
+      "[session.timeout.ms]": 200000
+      "[basic.auth.credentials.source]": USER_INFO
+      "[basic.auth.user.info]": "${schema-registry-username}:${schema-registry-password}"
+      "[schema.registry.url]": "${schema-registry-url}"
+    listener:
+      type: batch
+    consumer:
+      group-id: connect-notification-consumer-dev
+      topic:
+        notification: connect-notification-test
+      max-poll-records: 1000
+      auto-offset-reset: latest
+      enable-auto-commit: true
+      fetch-max-wait: 1s
+
+server:
+  port: 8080
+
+# Aligo / Mail (dev/mapsea-notification-consumer 에서 로드)
+api:
+  base-url:
+    aligo: ${aligo-api-url}
+  key:
+    aligo: ${aligo-api-key}
+    aligo-sender: ${aligo-sender-key}
+
+service:
+  mail:
+    client-id: ${mail-client-id}
+    client-secret: ${mail-client-secret}
+    refresh-token: ${mail-refresh-token}
+    service-auth-url: ${mail-auth-url}
+    from-email: no-reply@mapseacorp.com
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+      base-path: /actuator
+  endpoint:
+    health:
+      show-details: always
+      probes:
+        enabled: true
+  health:
+    livenessstate:
+      enabled: true
+    readinessstate:
+      enabled: true
+  metrics:
+    tags:
+      application: mapsea-notification-consumer
+      environment: aws-dev
+
+logging:
+  level:
+    root: INFO
+    com.mapsea: INFO
+    org.springframework: INFO
+    org.hibernate.orm.jdbc.bind: WARN
+    io.awspring.cloud: INFO
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"

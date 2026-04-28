@@ -1,9 +1,11 @@
 spring:
+  application:
+    name: Mapsea-Notification-Consumer
   data:
     redis:
-      host: ${sm://AIS_DATA_REDIS_HOST}
+      host: ${REDIS_HOST}
       port: 6378
-      password: ${sm://AIS_DATA_REDIS_PASSWORD}
+      password: ${REDIS_PASSWORD}
       lettuce:
         pool:
           max-wait: 5000000
@@ -12,18 +14,14 @@ spring:
           enabled: true
           time-between-eviction-runs: 30000
         shutdown-timeout: 5000000
-  session:
-    store-type: redis
-  application:
-    name: Connect-Track-Consumer
   datasource:
     hikari:
       maximum-pool-size: 20
       max-lifetime: 10000
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: ${sm://connect-api-db-url-dev}
-    username: ${sm://connect-api-db-username-dev}
-    password: ${sm://connect-api-db-password-dev}
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
   jpa:
     hibernate:
       ddl-auto: update
@@ -72,13 +70,21 @@ spring:
       auto-offset-reset: latest
       enable-auto-commit: true
       fetch-max-wait: 1s
+
 server:
   port: 8080
 
+api:
+  base-url:
+    aligo: ${ALIGO_API_URL}
+  key:
+    aligo: ${ALIGO_API_KEY}
+    aligo-sender: ${ALIGO_SENDER_KEY}
+
 service:
   mail:
-    client-id: ${sm://SERVICE_MAIL_CLIENT_ID}
-    client-secret: ${sm://SERVICE_MAIL_CLIENT_SECRET}
-    refresh-token: ${sm://SERVICE_MAIL_REFRESH_TOKEN}
-    service-auth-url: ${sm://SERVICE_MAIL_AUTH_URL}
+    client-id: ${MAIL_CLIENT_ID}
+    client-secret: ${MAIL_CLIENT_SECRET}
+    refresh-token: ${MAIL_REFRESH_TOKEN}
+    service-auth-url: ${MAIL_AUTH_URL}
     from-email: no-reply@mapseacorp.com
