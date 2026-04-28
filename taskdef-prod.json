@@ -1,0 +1,61 @@
+{
+  "family": "mapsea-prod-notification-consumer",
+  "networkMode": "bridge",
+  "requiresCompatibilities": ["EC2"],
+  "cpu": "1024",
+  "memory": "3072",
+  "executionRoleArn": "arn:aws:iam::${AWS_ACCOUNT_ID}:role/mapsea-ecs-task-execution-role",
+  "taskRoleArn": "arn:aws:iam::${AWS_ACCOUNT_ID}:role/mapsea-ecs-task-role",
+  "containerDefinitions": [
+    {
+      "name": "mapsea-notification-consumer",
+      "image": "<IMAGE1_NAME>",
+      "cpu": 1024,
+      "memory": 3072,
+      "memoryReservation": 2560,
+      "essential": true,
+      "portMappings": [
+        {
+          "containerPort": 8080,
+          "hostPort": 0,
+          "protocol": "tcp"
+        }
+      ],
+      "environment": [
+        {"name": "SPRING_PROFILES_ACTIVE", "value": "aws-prod"},
+        {"name": "SERVER_PORT", "value": "8080"},
+        {"name": "JAVA_OPTS", "value": "-XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0 -XX:+UseG1GC -XX:+UseStringDeduplication"}
+      ],
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/aws/mapsea-notification-consumer/prod/application",
+          "awslogs-region": "ap-northeast-2",
+          "awslogs-stream-prefix": "ecs",
+          "mode": "non-blocking",
+          "max-buffer-size": "4m"
+        }
+      },
+      "mountPoints": [
+        {
+          "sourceVolume": "tmp",
+          "containerPath": "/tmp"
+        }
+      ],
+      "ulimits": [
+        {
+          "name": "nofile",
+          "softLimit": 65536,
+          "hardLimit": 65536
+        }
+      ],
+      "stopTimeout": 30
+    }
+  ],
+  "volumes": [
+    {
+      "name": "tmp",
+      "host": {}
+    }
+  ]
+}

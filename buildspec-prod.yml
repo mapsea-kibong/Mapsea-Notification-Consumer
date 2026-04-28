@@ -1,0 +1,60 @@
+version: 0.2
+
+env:
+  variables:
+    AWS_DEFAULT_REGION: ap-northeast-2
+    IMAGE_REPO_NAME: mapsea-notification-consumer
+    CONTAINER_NAME: mapsea-notification-consumer
+    ENVIRONMENT: production
+    ECS_CLUSTER: mapsea-prod-cluster
+    ECS_SERVICE: mapsea-prod-notification-consumer-svc
+    TASK_FAMILY: mapsea-prod-notification-consumer
+
+cache:
+  paths:
+    - '/root/.gradle/caches/**/*'
+    - '/root/.gradle/wrapper/**/*'
+
+phases:
+  install:
+    commands:
+      - echo Installing Trivy for security scanning...
+      - curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh -s -- -b /usr/local/bin
+
+  pre_build:
+    commands:
+      - set -e
+      - echo Logging in to Amazon ECR...
+      - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com
+      - REPOSITORY_URI=$AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME
+      - COMMIT_HASH=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
+      - IMAGE_TAG=${COMMIT_HASH:=latest}
+      - echo "Building commit $COMMIT_HASH for PRODUCTION environment"
+
+  build:
+    commands:
+      - echo Build started on `date`
+      - echo Building the Docker image for PRODUCTION...
+      - docker build --cache-from $REPOSITORY_URI:latest -t $REPOSITORY_URI:latest -t $REPOSITORY_URI:$IMAGE_TAG -t $REPOSITORY_URI:prod-$IMAGE_TAG .
+
+  post_build:
+    commands:
+      - echo Build completed on `date`
+      - echo Running security scan...
+      - trivy image --exit-code 0 --severity HIGH,CRITICAL --no-progress $REPOSITORY_URI:$IMAGE_TAG || true
+      - echo Pushing the Docker images...
+      - docker push $REPOSITORY_URI:latest
+      - docker push $REPOSITORY_URI:$IMAGE_TAG
+      - docker push $REPOSITORY_URI:prod-$IMAGE_TAG
+      - echo Updating ECS Task Definition...
+      - CURRENT_TASK_DEF=$(aws ecs describe-task-definition --task-definition $TASK_FAMILY --query "taskDefinition" --output json)
+      - NEW_TASK_DEF=$(echo $CURRENT_TASK_DEF | jq --arg IMAGE "$REPOSITORY_URI:$IMAGE_TAG" '.containerDefinitions[0].image = $IMAGE | del(.taskDefinitionArn, .revision, .status, .requiresAttributes, .compatibilities, .registeredAt, .registeredBy)')
+      - NEW_TASK_DEF_ARN=$(aws ecs register-task-definition --cli-input-json "$NEW_TASK_DEF" --query "taskDefinition.taskDefinitionArn" --output text)
+      - echo "New Task Definition registered - $NEW_TASK_DEF_ARN"
+      - echo Updating ECS Service...
+      - aws ecs update-service --cluster $ECS_CLUSTER --service $ECS_SERVICE --task-definition $NEW_TASK_DEF_ARN --force-new-deployment
+      - echo "ECS Service update triggered successfully"
+
+artifacts:
+  files:
+    - buildspec-prod.yml
